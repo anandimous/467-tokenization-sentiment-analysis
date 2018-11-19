@@ -95,14 +95,21 @@ j <- as.Date("1970-01-01")
 pal = brewer.pal(8,"Dark2")
 
 ui <- fluidPage(
-   dateRangeInput(inputId = "date1", 
+  dateRangeInput(inputId = "date1", 
                  strong("Date Range"),
                  start = "2017-03-01", end = "2018-03-01",
                  min = "2009-05-01", max ="2018-03-01"),  
   fluidRow(
     splitLayout(cellWidths = c("50%", "50%"),
-    plotOutput("TrumpGraph",
-             click = "plotClick")))
+                plotOutput("TrumpGraph",
+                           click = "plotClick"),
+                plotOutput("sentiments"))),
+  fluidRow(
+    column(width = 6,
+           verbatimTextOutput("click_info")),
+    column(width = 6,
+           verbatimTextOutput("click_info2"))
+  )
 )
 
 ## Things to Add:
@@ -129,6 +136,14 @@ server <- function(input, output) {
       scale_fill_gradient(low="yellow", high="red") + 
       theme(panel.background = element_rect(fill = "grey"), axis.text.x = element_text(face = "bold"))
   })
+  
+  output$sentiments <- renderPlot({
+    ggplot(tweets2, aes(x = Date, y = sentiment, fill = pos_neg, group = pos_neg)) +        
+      geom_line(aes(color = pos_neg), size = 0.6) +
+      #geom_line(inherit.aes = FALSE, data = tweets2, aes(x = Date, y = sentiment, group = pos_neg, color= pos_neg)) +
+      scale_x_date(limits = c(input$date1[1], input$date1[2])) +  ###### X-Axis for reactive date range (REACTIVITY WON'T WORK WITHOUT THIS) #######
+    theme(panel.background = element_rect(fill = "grey"), axis.text.x = element_text(face = "bold"))
+  })
 
   ## Tweet text click output ##
   output$click_info <- renderText({
@@ -149,3 +164,32 @@ server <- function(input, output) {
       i <- tweets2$text[d]
       HTML("Tweet:\n",i) 
     })
+  
+  output$click_info2 <- renderText({
+    t <- input$plotClick$x
+    xx <- input$plotClick$x
+    t <- as.character(t)
+    yy <- strsplit(t, "\\.")
+    z <- yy[[1]][[2]]
+    z <- substr(z, 1, 1)
+    z <- as.numeric(z)
+    x <- as.numeric(t)
+    if (z <= 5) {x <- x - 1}
+    x <- floor(as.numeric(x))
+    y <- input$plotClick$y
+    y <- ceiling(as.numeric(y))
+    d <- which((tweets2$rando == x) & (tweets2$Total == y), arr.ind = TRUE)
+    d <- as.numeric(d)
+    w <- tweets2$pos_neg[d]
+    # sentiment <- analyzeSentiment(tweets2$text[d])  ### This code used to make the sentiment reactive but is no longer necessary with the newly written csv ###
+    # if (sentiment$SentimentQDAP < 0)
+    # { w <- "NEGATIVE"}
+    # else if (sentiment$SentimentQDAP == 0)
+    # { w <- "NEUTRAL"}
+    # sentiment <- convertToBinaryResponse(sentiment)
+    HTML("The sentiment of this tweet is:", w)
+  })
+  
+  }
+                                           
+shinyApp(ui = ui, server = server)
