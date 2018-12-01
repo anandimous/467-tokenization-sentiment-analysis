@@ -10,6 +10,7 @@ Compilation of progress made recorded & updated weekly [here](https://github.com
 - [Week 1](https://github.com/anandimous/467-tokenization-sentiment-analysis/wiki/Week-1)
 - [Week 2](https://github.com/anandimous/467-tokenization-sentiment-analysis/wiki/Week-2)
 - [Week 3](https://github.com/anandimous/467-tokenization-sentiment-analysis/wiki/Week-3)
+- [Week 4](https://github.com/anandimous/467-tokenization-sentiment-analysis/wiki/Week-4)
 
 ## Team Members
 > Aniruddha Nandi
